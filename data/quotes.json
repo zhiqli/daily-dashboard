@@ -1,0 +1,22 @@
+[
+  {"text": "山重水复疑无路，柳暗花明又一村。", "author": "陆游", "type": "poem"},
+  {"text": "长风破浪会有时，直挂云帆济沧海。", "author": "李白", "type": "poem"},
+  {"text": "会当凌绝顶，一览众山小。", "author": "杜甫", "type": "poem"},
+  {"text": "千磨万击还坚劲，任尔东西南北风。", "author": "郑燮", "type": "poem"},
+  {"text": "莫愁前路无知己，天下谁人不识君。", "author": "高适", "type": "poem"},
+  {"text": "人生自古谁无死，留取丹心照汗青。", "author": "文天祥", "type": "poem"},
+  {"text": "不畏浮云遮望眼，自缘身在最高层。", "author": "王安石", "type": "poem"},
+  {"text": "问渠那得清如许，为有源头活水来。", "author": "朱熹", "type": "poem"},
+  {"text": "海内存知己，天涯若比邻。", "author": "王勃", "type": "poem"},
+  {"text": "沉舟侧畔千帆过，病树前头万木春。", "author": "刘禹锡", "type": "poem"},
+  {"text": "The only way to do great work is to love what you do.", "author": "Steve Jobs", "type": "quote"},
+  {"text": "Stay hungry, stay foolish.", "author": "Steve Jobs", "type": "quote"},
+  {"text": "The best time to plant a tree was 20 years ago. The second best time is now.", "author": "Chinese Proverb", "type": "quote"},
+  {"text": "It does not matter how slowly you go as long as you do not stop.", "author": "Confucius", "type": "quote"},
+  {"text": "In the middle of difficulty lies opportunity.", "author": "Albert Einstein", "type": "quote"},
+  {"text": "The future belongs to those who believe in the beauty of their dreams.", "author": "Eleanor Roosevelt", "type": "quote"},
+  {"text": "Success is not final, failure is not fatal: it is the courage to continue that counts.", "author": "Winston Churchill", "type": "quote"},
+  {"text": "Simplicity is the ultimate sophistication.", "author": "Leonardo da Vinci", "type": "quote"},
+  {"text": "Do what you can, with what you have, where you are.", "author": "Theodore Roosevelt", "type": "quote"},
+  {"text": "The journey of a thousand miles begins with one step.", "author": "Lao Tzu", "type": "quote"}
+]

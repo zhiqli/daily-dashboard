@@ -1,0 +1,167 @@
+/* === 墨水屏 / 6寸屏 优化 === */
+:root {
+  --bg: #ffffff;
+  --card-bg: #fafafa;
+  --card-border: #d0d0d0;
+  --accent: #333333;
+  --text: #111111;
+  --text-muted: #555555;
+  --text-light: #888888;
+  --radius: 4px;
+  --gap: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "PingFang SC", "Noto Sans SC", "Heiti SC", "STHeiti", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 12px 14px;
+  -webkit-font-smoothing: antialiased;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* --- 卡片 --- */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+/* --- 天气 --- */
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.weather-emoji {
+  font-size: 50px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.weather-info {
+  flex: 1;
+}
+.weather-location {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.weather-temp {
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+.weather-meta {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* --- 名言 --- */
+.quote-text {
+  font-size: 17px;
+  line-height: 1.9;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+.quote-author {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* --- Todo --- */
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-light);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.todo-list { list-style: none; }
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 0;
+  font-size: 17px;
+  line-height: 1.6;
+}
+.todo-item + .todo-item {
+  border-top: 1px solid #e8e8e8;
+}
+
+.todo-marker {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  border: 1.5px solid #999;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  color: #333;
+}
+.todo-marker.done {
+  background: #333;
+  border-color: #333;
+}
+.todo-marker.done::after { content: "✓"; color: #fff; }
+
+.todo-content { flex: 1;  }
+.todo-content.done {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+.todo-summary {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+/* --- 更新时间 --- */
+.update-time {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: right;
+}
+
+/* --- Todo meta (截止时间 & 待办人) --- */
+.todo-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+.todo-meta {
+  white-space: nowrap;
+  color: var(--text-muted);
+}

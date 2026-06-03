@@ -1,0 +1,8 @@
+# 编译产物
+daily-dashboard
+
+# SQLite 数据
+data/todos.db
+
+# macOS
+.DS_Store
