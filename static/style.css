@@ -33,27 +33,6 @@ body {
   line-height: 1.72;
 }
 
-.toolbar {
-  display: flex;
-  justify-content: flex-end;
-  max-width: 620px;
-  margin: 0 auto 8px;
-}
-
-.mode-toggle {
-  min-width: 56px;
-  min-height: 32px;
-  border: 1px solid #222222;
-  border-radius: var(--radius);
-  background: #ffffff;
-  color: #111111;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-  padding: 6px 10px;
-}
-
 .dashboard {
   display: flex;
   flex-direction: column;
@@ -264,14 +243,6 @@ body.reader-mode {
   max-width: none;
   min-height: 100vh;
   padding: 18px 24px 38px;
-}
-
-body.reader-mode .toolbar {
-  position: fixed;
-  top: 8px;
-  right: 10px;
-  z-index: 2;
-  margin: 0;
 }
 
 body.reader-mode .dashboard {

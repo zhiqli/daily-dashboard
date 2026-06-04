@@ -93,57 +93,16 @@ function renderUpdateTime() {
 
 // --- Kindle 阅读模式 ---
 function initReaderMode() {
-  const toggle = document.getElementById('reader-toggle');
   const shouldStartReader =
     queryValue('reader') === '1' ||
-    queryValue('mode') === 'reader' ||
-    readStorage('daily-dashboard-reader-mode') === '1';
+    queryValue('mode') === 'reader';
 
   setReaderMode(shouldStartReader);
-
-  if (!toggle) return;
-  toggle.addEventListener('click', () => {
-    const next = !document.body.classList.contains('reader-mode');
-    setReaderMode(next);
-    writeStorage('daily-dashboard-reader-mode', next ? '1' : '0');
-    if (next) {
-      enterFullscreen();
-    } else {
-      exitFullscreen();
-    }
-  });
 }
 
 function setReaderMode(enabled) {
   toggleClass(document.documentElement, 'reader-mode', enabled);
   toggleClass(document.body, 'reader-mode', enabled);
-
-  const toggle = document.getElementById('reader-toggle');
-  if (toggle) {
-    toggle.setAttribute('aria-pressed', enabled ? 'true' : 'false');
-    toggle.textContent = enabled ? '退出' : '全屏';
-  }
-}
-
-function enterFullscreen() {
-  const el = document.documentElement;
-  const request = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-  if (request) {
-    try {
-      const result = request.call(el);
-      if (result && result.catch) result.catch(() => {});
-    } catch(e) {}
-  }
-}
-
-function exitFullscreen() {
-  const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-  if (exit) {
-    try {
-      const result = exit.call(document);
-      if (result && result.catch) result.catch(() => {});
-    } catch(e) {}
-  }
 }
 
 function formatBeijingTime(date) {
@@ -173,20 +132,6 @@ function toggleClass(el, className, enabled) {
   } else {
     el.classList.remove(className);
   }
-}
-
-function readStorage(key) {
-  try {
-    return window.localStorage.getItem(key);
-  } catch(e) {
-    return null;
-  }
-}
-
-function writeStorage(key, value) {
-  try {
-    window.localStorage.setItem(key, value);
-  } catch(e) {}
 }
 
 // --- SSE ---
