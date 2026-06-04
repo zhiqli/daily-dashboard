@@ -16,11 +16,13 @@
 # 编译
 go build -o daily-dashboard .
 
-# 启动（默认 8080，可通过 PORT 环境变量指定）
+# 启动（默认 8081，可通过 PORT 环境变量指定）
 PORT=8081 ./daily-dashboard
 ```
 
 浏览器打开 `http://localhost:8081`。
+
+Kindle 上可打开 `http://<设备可访问地址>:8081/?reader=1` 直接进入电子书阅读模式；页面右上角的「全屏」按钮也会尝试调用浏览器全屏能力，不支持时自动退化为满屏阅读排版。
 
 ## Todo 操作
 

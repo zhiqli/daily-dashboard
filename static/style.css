@@ -1,28 +1,57 @@
 /* === 墨水屏 / 6寸屏 优化 === */
 :root {
   --bg: #ffffff;
-  --card-bg: #fafafa;
-  --card-border: #d0d0d0;
+  --card-bg: #ffffff;
+  --card-border: #111111;
   --accent: #333333;
   --text: #111111;
-  --text-muted: #555555;
-  --text-light: #888888;
-  --radius: 4px;
-  --gap: 10px;
+  --text-muted: #444444;
+  --text-light: #666666;
+  --rule-soft: #d8d8d8;
+  --radius: 2px;
+  --gap: 12px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html {
+  background: #ffffff;
+  background: var(--bg);
+}
+
 body {
   font-family: "PingFang SC", "Noto Sans SC", "Heiti SC", "STHeiti", sans-serif;
+  background: #ffffff;
   background: var(--bg);
+  color: #111111;
   color: var(--text);
-  max-width: 600px;
+  max-width: 620px;
   margin: 0 auto;
-  padding: 12px 14px;
+  padding: 14px 18px 18px;
   -webkit-font-smoothing: antialiased;
-  font-size: 17px;
-  line-height: 1.7;
+  font-size: 19px;
+  line-height: 1.72;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 620px;
+  margin: 0 auto 8px;
+}
+
+.mode-toggle {
+  min-width: 56px;
+  min-height: 32px;
+  border: 1px solid #222222;
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: #111111;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 6px 10px;
 }
 
 .dashboard {
@@ -33,17 +62,24 @@ body {
 
 /* --- 卡片 --- */
 .card {
+  background: #ffffff;
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
+  border: 0;
+  border-top: 2px solid #111111;
+  border-top: 2px solid var(--card-border);
+  border-radius: 0;
+  padding: 15px 0 16px;
+}
+
+.weather-card {
+  border-top-width: 3px;
 }
 
 /* --- 天气 --- */
 .weather-main {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 .weather-emoji {
   font-size: 50px;
@@ -54,65 +90,68 @@ body {
   flex: 1;
 }
 .weather-location {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--text);
   margin-bottom: 2px;
 }
 .weather-temp {
-  font-size: 38px;
+  font-size: 42px;
   font-weight: 700;
   line-height: 1.1;
-  letter-spacing: -1px;
+  letter-spacing: 0;
 }
 .weather-meta {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-muted);
   margin-top: 2px;
 }
 
 /* --- 名言 --- */
 .quote-text {
-  font-size: 17px;
+  font-size: 20px;
   line-height: 1.9;
   text-align: center;
-  letter-spacing: 0.3px;
+  letter-spacing: 0;
 }
 .quote-author {
   margin-top: 10px;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-muted);
   text-align: center;
 }
 
 /* --- Todo --- */
 .section-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-light);
-  letter-spacing: 1px;
+  letter-spacing: 0;
   margin-bottom: 8px;
   padding-bottom: 6px;
-  border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid #d8d8d8;
+  border-bottom: 1px solid var(--rule-soft);
 }
 
 .todo-list { list-style: none; }
 .todo-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 0;
-  font-size: 17px;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding: 11px 0;
+  font-size: 19px;
   line-height: 1.6;
 }
 .todo-item + .todo-item {
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid #d8d8d8;
+  border-top: 1px solid var(--rule-soft);
 }
 
 .todo-marker {
   flex-shrink: 0;
-  width: 16px; height: 16px;
-  border: 1.5px solid #999;
+  width: 18px; height: 18px;
+  border: 2px solid #555555;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 10px;
@@ -122,16 +161,16 @@ body {
   background: #333;
   border-color: #333;
 }
-.todo-marker.done::after { content: "✓"; color: #fff; }
+.todo-marker.done::after { content: ""; }
 
-.todo-content { flex: 1;  }
+.todo-content { flex: 1 1 280px;  }
 .todo-content.done {
   text-decoration: line-through;
   color: var(--text-light);
 }
 .todo-summary {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-muted);
   margin-top: 1px;
 }
@@ -140,13 +179,13 @@ body {
   text-align: center;
   padding: 20px;
   color: var(--text-light);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* --- 更新时间 --- */
 .update-time {
   margin-top: 8px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-light);
   text-align: right;
 }
@@ -155,13 +194,142 @@ body {
 .todo-meta-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
+  flex-wrap: wrap;
   flex-shrink: 0;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-muted);
   margin-left: auto;
 }
 .todo-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   white-space: nowrap;
   color: var(--text-muted);
+}
+.todo-meta-icon {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+.todo-meta-icon-clock {
+  border: 1.5px solid #555555;
+  border-radius: 50%;
+}
+.todo-meta-icon-clock::before,
+.todo-meta-icon-clock::after,
+.todo-meta-icon-person::before,
+.todo-meta-icon-person::after {
+  content: "";
+  position: absolute;
+  display: block;
+}
+.todo-meta-icon-clock::before {
+  width: 1.5px;
+  height: 6px;
+  left: 7px;
+  top: 3px;
+  background: #555555;
+}
+.todo-meta-icon-clock::after {
+  width: 6px;
+  height: 1.5px;
+  left: 7px;
+  top: 8px;
+  background: #555555;
+}
+.todo-meta-icon-person::before {
+  width: 7px;
+  height: 7px;
+  left: 5px;
+  top: 1px;
+  border: 1.5px solid #555555;
+  border-radius: 50%;
+}
+.todo-meta-icon-person::after {
+  width: 14px;
+  height: 8px;
+  left: 2px;
+  bottom: 0;
+  border: 1.5px solid #555555;
+  border-top-width: 0;
+  border-radius: 0 0 8px 8px;
+}
+
+/* --- Kindle 电子书模式 --- */
+body.reader-mode {
+  max-width: none;
+  min-height: 100vh;
+  padding: 18px 24px 38px;
+}
+
+body.reader-mode .toolbar {
+  position: fixed;
+  top: 8px;
+  right: 10px;
+  z-index: 2;
+  margin: 0;
+}
+
+body.reader-mode .dashboard {
+  min-height: calc(100vh - 56px);
+  gap: 14px;
+  padding-top: 24px;
+}
+
+body.reader-mode .card {
+  padding: 17px 0 19px;
+}
+
+body.reader-mode .weather-emoji {
+  font-size: 56px;
+}
+
+body.reader-mode .weather-temp {
+  font-size: 48px;
+}
+
+body.reader-mode .quote-text {
+  font-size: 22px;
+}
+
+body.reader-mode .todo-item {
+  font-size: 21px;
+  padding: 13px 0;
+}
+
+body.reader-mode .update-time {
+  position: fixed;
+  right: 14px;
+  bottom: 8px;
+  margin-top: 0;
+  background: #ffffff;
+  padding-left: 8px;
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 12px 14px 16px;
+    font-size: 18px;
+  }
+
+  .weather-temp {
+    font-size: 38px;
+  }
+
+  .quote-text {
+    font-size: 19px;
+  }
+
+  .todo-item {
+    font-size: 18px;
+  }
+
+  .todo-meta-row {
+    width: 100%;
+    margin-left: 28px;
+  }
 }
