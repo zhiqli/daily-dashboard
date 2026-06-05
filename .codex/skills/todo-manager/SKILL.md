@@ -21,7 +21,7 @@ http://localhost:8081
 |-------|------|----------|-------------|
 | content | string | yes | 任务内容 |
 | done | bool | no | 是否完成 |
-| due_date | string | no | 截止时间 HH:MM |
+| due_date | string | no | 截止日期 YYYY-MM-DD；默认当天，任务持续展示到截止日期当天 |
 | assignee | string | no | 待办人 |
 
 ## Operations
@@ -39,7 +39,7 @@ POST /api/todos
 Content-Type: application/json
 
 {"content": "写周报"}
-{"content": "写周报", "due_date": "09:30", "assignee": "张三"}
+{"content": "写周报", "due_date": "2026-06-08", "assignee": "张三"}
 ```
 
 ### 3. Update todo
@@ -50,7 +50,7 @@ Content-Type: application/json
 
 {"done": true}
 {"content": "新内容"}
-{"due_date": "16:00"}
+{"due_date": "2026-06-08"}
 {"assignee": "李四"}
 {"done": true, "assignee": "李四"}
 ```
@@ -70,7 +70,7 @@ Content-Type: application/json
 {
   "date": "2026-06-03",
   "todos": [
-    {"id": "abc", "content": "写周报", "done": true, "due_date": "09:30", "assignee": "张三"}
+    {"id": "abc", "content": "写周报", "done": true, "due_date": "2026-06-08", "assignee": "张三"}
   ],
   "summary": "整体总结"
 }
@@ -82,5 +82,5 @@ Content-Type: application/json
 2. 完成 → find id via GET /api/todos, then PUT /api/todos/{id} with `{"done":true}`
 3. 删除 → find id, then DELETE /api/todos/{id}
 4. 修改 → find id, then PUT /api/todos/{id} with new fields
-5. 设置截止时间 → PUT /api/todos/{id} with `{"due_date":"16:00"}`
+5. 设置截止日期 → PUT /api/todos/{id} with `{"due_date":"2026-06-08"}`
 6. 设置待办人 → PUT /api/todos/{id} with `{"assignee":"王五"}`

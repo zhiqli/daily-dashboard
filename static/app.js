@@ -180,7 +180,7 @@ function renderTodos(todos) {
   }
   list.innerHTML = todos.map(t => {
     let meta = '';
-    if (t.due_date) meta += '<span class="todo-meta"><span class="todo-meta-icon todo-meta-icon-clock" aria-hidden="true"></span>' + esc(t.due_date) + '</span>';
+    if (t.due_date) meta += '<span class="todo-meta"><span class="todo-meta-icon todo-meta-icon-clock" aria-hidden="true"></span>' + esc(formatDueDate(t.due_date)) + '</span>';
     if (t.assignee) meta += '<span class="todo-meta"><span class="todo-meta-icon todo-meta-icon-person" aria-hidden="true"></span>' + esc(t.assignee) + '</span>';
     return `
     <li class="todo-item" data-id="${t.id}">
@@ -191,6 +191,26 @@ function renderTodos(todos) {
   }).join('');
 
   renderUpdateTime();
+}
+
+function formatDueDate(value) {
+  const parts = value.split('-');
+  if (parts.length !== 3) return value;
+
+  const todayParts = beijingDateParts(new Date());
+  if (Number(parts[0]) === todayParts.year && Number(parts[1]) === todayParts.month && Number(parts[2]) === todayParts.day) {
+    return '今天截止';
+  }
+  return Number(parts[1]) + '月' + Number(parts[2]) + '日截止';
+}
+
+function beijingDateParts(date) {
+  const beijing = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  return {
+    year: beijing.getUTCFullYear(),
+    month: beijing.getUTCMonth() + 1,
+    day: beijing.getUTCDate(),
+  };
 }
 
 function renderUpdateTime() {

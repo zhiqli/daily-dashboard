@@ -30,7 +30,7 @@ Kindle 上可打开 `http://<设备可访问地址>:8081/?reader=1` 直接进入
 # 添加
 curl -X POST localhost:8081/api/todos \
   -H 'Content-Type: application/json' \
-  -d '{"content":"写周报","due_date":"18:00","assignee":"张三"}'
+  -d '{"content":"写周报","due_date":"2026-06-08","assignee":"张三"}'
 
 # 列表
 curl localhost:8081/api/todos
@@ -46,7 +46,7 @@ curl -X DELETE localhost:8081/api/todos/{id}
 |------|------|------|------|
 | content | string | 是 | 任务内容 |
 | done | bool | 否 | 是否完成 |
-| due_date | string | 否 | 截止时间 `HH:MM` |
+| due_date | string | 否 | 截止日期 `YYYY-MM-DD`；默认当天，并持续展示到截止日期当天 |
 | assignee | string | 否 | 待办人 |
 
 ## API 一览

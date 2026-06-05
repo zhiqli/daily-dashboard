@@ -49,28 +49,37 @@ func NewTodoStore(dataDir string) *TodoStore {
 
 	db.Exec("ALTER TABLE todos ADD COLUMN due_date TEXT NOT NULL DEFAULT ''")
 	db.Exec("ALTER TABLE todos ADD COLUMN assignee TEXT NOT NULL DEFAULT ''")
+	if _, err := db.Exec("UPDATE todos SET due_date = date WHERE due_date = ''"); err != nil {
+		log.Printf("[store] 补全默认截止日期失败: %v", err)
+	}
 
 	s := &TodoStore{
 		db:        db,
 		broadcast: make(chan model.SSEEvent, 100),
 	}
-	log.Printf("[store] SQLite 就绪，今日 %d 条 todo", s.countToday())
+	log.Printf("[store] SQLite 就绪，当前展示 %d 条 todo", s.countVisible())
 	return s
 }
 
 func today() string { return time.Now().Format("2006-01-02") }
 
-func (s *TodoStore) countToday() int {
+func (s *TodoStore) countVisible() int {
 	var n int
-	s.db.QueryRow("SELECT COUNT(*) FROM todos WHERE date = ?", today()).Scan(&n)
+	d := today()
+	s.db.QueryRow(`SELECT COUNT(*) FROM todos
+		WHERE date = ? OR (date < ? AND due_date >= ?)`, d, d, d).Scan(&n)
 	return n
 }
 
 func (s *TodoStore) BroadcastChan() chan model.SSEEvent { return s.broadcast }
 
 func (s *TodoStore) List() []*model.Todo {
+	d := today()
 	rows, err := s.db.Query(`SELECT id, date, content, done, due_date, assignee, created_at, updated_at
-		FROM todos WHERE date = ? ORDER BY done ASC, created_at ASC`, today())
+		FROM todos
+		WHERE date = ? OR (date < ? AND due_date >= ?)
+		ORDER BY done ASC, CASE WHEN due_date = '' THEN 1 ELSE 0 END, due_date ASC, created_at ASC`,
+		d, d, d)
 	if err != nil {
 		return nil
 	}
@@ -87,6 +96,7 @@ func (s *TodoStore) List() []*model.Todo {
 func (s *TodoStore) Create(content, dueDate, assignee string) *model.Todo {
 	now := time.Now()
 	d := today()
+	dueDate = defaultDueDate(dueDate, d)
 	t := &model.Todo{
 		ID:        uuid.New().String(),
 		Date:      d,
@@ -122,15 +132,18 @@ func (s *TodoStore) Update(id string, content *string, done *bool, dueDate *stri
 	}
 	if done != nil {
 		v := 0
-		if *done { v = 1 }
+		if *done {
+			v = 1
+		}
 		clauses = append(clauses, "done = ?")
 		args = append(args, v)
 		existing.Done = *done
 	}
 	if dueDate != nil {
+		normalizedDueDate := defaultDueDate(*dueDate, existing.Date)
 		clauses = append(clauses, "due_date = ?")
-		args = append(args, *dueDate)
-		existing.DueDate = *dueDate
+		args = append(args, normalizedDueDate)
+		existing.DueDate = normalizedDueDate
 	}
 	if assignee != nil {
 		clauses = append(clauses, "assignee = ?")
@@ -151,7 +164,9 @@ func (s *TodoStore) Update(id string, content *string, done *bool, dueDate *stri
 func (s *TodoStore) Delete(id string) bool {
 	r, _ := s.db.Exec("DELETE FROM todos WHERE id = ?", id)
 	n, _ := r.RowsAffected()
-	if n == 0 { return false }
+	if n == 0 {
+		return false
+	}
 	s.broadcastEvent("todo_deleted", map[string]string{"id": id})
 	return true
 }
@@ -160,16 +175,30 @@ func (s *TodoStore) ApplyAgentSummary(req *model.AgentSummaryRequest) {
 	now := time.Now()
 	var ids []string
 	for _, item := range req.Todos {
+		if !validDueDate(item.DueDate) {
+			log.Printf("[store] 跳过截止日期无效的 todo: %q", item.DueDate)
+			continue
+		}
 		existing := s.getByID(item.ID)
 		if existing == nil {
 			t := s.Create(item.Content, item.DueDate, item.Assignee)
-			if t != nil { item.ID = t.ID; existing = t } else { continue }
+			if t != nil {
+				item.ID = t.ID
+				existing = t
+			} else {
+				continue
+			}
 		}
+		item.DueDate = defaultDueDate(item.DueDate, existing.Date)
 		doneVal := 0
-		if item.Done { doneVal = 1 }
+		if item.Done {
+			doneVal = 1
+		}
 		_, err := s.db.Exec(`UPDATE todos SET content=?, done=?, due_date=?, assignee=?, updated_at=? WHERE id=?`,
 			item.Content, doneVal, item.DueDate, item.Assignee, fmtTime(now), item.ID)
-		if err != nil { continue }
+		if err != nil {
+			continue
+		}
 		ids = append(ids, item.ID)
 	}
 	s.broadcastEvent("agent_summary", map[string]interface{}{
@@ -195,7 +224,9 @@ func scanTodo(scanner interface{ Scan(...interface{}) error }) *model.Todo {
 	var doneInt int
 	var createdStr, updatedStr string
 	err := scanner.Scan(&t.ID, &t.Date, &t.Content, &doneInt, &t.DueDate, &t.Assignee, &createdStr, &updatedStr)
-	if err != nil { return nil }
+	if err != nil {
+		return nil
+	}
 	t.Done = doneInt != 0
 	t.CreatedAt, _ = time.Parse(time.RFC3339, createdStr)
 	t.UpdatedAt, _ = time.Parse(time.RFC3339, updatedStr)
@@ -204,8 +235,28 @@ func scanTodo(scanner interface{ Scan(...interface{}) error }) *model.Todo {
 
 func fmtTime(t time.Time) string { return t.Format(time.RFC3339) }
 
+func validDueDate(value string) bool {
+	if value == "" {
+		return true
+	}
+	parsed, err := time.Parse("2006-01-02", value)
+	return err == nil && parsed.Format("2006-01-02") == value
+}
+
+func defaultDueDate(value, fallback string) string {
+	if value == "" {
+		return fallback
+	}
+	return value
+}
+
 func (s *TodoStore) broadcastEvent(typ string, data interface{}) {
-	select { case s.broadcast <- model.SSEEvent{Type: typ, Data: data}: default: {} }
+	select {
+	case s.broadcast <- model.SSEEvent{Type: typ, Data: data}:
+	default:
+		{
+		}
+	}
 }
 
 // --- HTTP Handlers ---
@@ -216,7 +267,9 @@ func MakeTodoHandler(store *TodoStore) http.HandlerFunc {
 		switch r.Method {
 		case http.MethodGet:
 			list := store.List()
-			if list == nil { list = []*model.Todo{} }
+			if list == nil {
+				list = []*model.Todo{}
+			}
 			json.NewEncoder(w).Encode(list)
 		case http.MethodPost:
 			var req struct {
@@ -226,6 +279,10 @@ func MakeTodoHandler(store *TodoStore) http.HandlerFunc {
 			}
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Content == "" {
 				http.Error(w, `{"error":"content required"}`, http.StatusBadRequest)
+				return
+			}
+			if !validDueDate(req.DueDate) {
+				http.Error(w, `{"error":"due_date must be YYYY-MM-DD"}`, http.StatusBadRequest)
 				return
 			}
 			t := store.Create(req.Content, req.DueDate, req.Assignee)
@@ -245,6 +302,10 @@ func MakeTodoHandler(store *TodoStore) http.HandlerFunc {
 			}
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 				http.Error(w, `{"error":"invalid body"}`, http.StatusBadRequest)
+				return
+			}
+			if req.DueDate != nil && !validDueDate(*req.DueDate) {
+				http.Error(w, `{"error":"due_date must be YYYY-MM-DD"}`, http.StatusBadRequest)
 				return
 			}
 			t := store.Update(id, req.Content, req.Done, req.DueDate, req.Assignee)
@@ -289,8 +350,12 @@ func MakeAgentSummaryHandler(store *TodoStore) http.HandlerFunc {
 
 func extractID(path string) string {
 	const p = "/api/todos/"
-	if !strings.HasPrefix(path, p) { return "" }
+	if !strings.HasPrefix(path, p) {
+		return ""
+	}
 	id := strings.TrimPrefix(path, p)
-	if id == "" { return "" }
+	if id == "" {
+		return ""
+	}
 	return id
 }

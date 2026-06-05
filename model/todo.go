@@ -7,8 +7,8 @@ type Todo struct {
 	Date      string    `json:"date"`
 	Content   string    `json:"content"`
 	Done      bool      `json:"done"`
-	DueDate   string    `json:"due_date"`  // YYYY-MM-DD，空表示未设置
-	Assignee  string    `json:"assignee"`   // 空表示未设置
+	DueDate   string    `json:"due_date"` // YYYY-MM-DD，默认创建当天，展示到截止日期当天
+	Assignee  string    `json:"assignee"` // 空表示未设置
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
