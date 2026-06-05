@@ -68,6 +68,32 @@ body {
 .weather-info {
   flex: 1;
 }
+.calendar-info {
+  flex: 0 0 126px;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 16px;
+  border-left: 1px solid var(--rule-soft);
+  line-height: 1.35;
+}
+.calendar-date {
+  font-size: 24px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.calendar-weekday {
+  margin-top: 3px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+.calendar-lunar {
+  margin-top: 1px;
+  font-size: 14px;
+  color: var(--text-light);
+  white-space: nowrap;
+}
 .weather-location {
   font-size: 18px;
   font-weight: 600;
@@ -263,6 +289,10 @@ body.reader-mode .weather-temp {
   font-size: 48px;
 }
 
+body.reader-mode .calendar-date {
+  font-size: 27px;
+}
+
 body.reader-mode .quote-text {
   font-size: 22px;
 }
@@ -289,6 +319,33 @@ body.reader-mode .update-time {
 
   .weather-temp {
     font-size: 38px;
+  }
+
+  .weather-main {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .calendar-info {
+    flex: 1 0 100%;
+    min-height: 36px;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 8px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  .calendar-date,
+  .calendar-weekday,
+  .calendar-lunar {
+    margin-top: 0;
+  }
+
+  .calendar-date {
+    font-size: 20px;
   }
 
   .quote-text {
