@@ -128,23 +128,25 @@ function lunarDayName(day) {
 }
 
 // --- 天气 ---
-// 心知天气 emoji 映射（文本关键词匹配）
-function weatherToEmoji(text) {
+// 使用黑白文字图标，避免墨水屏缺少彩色 emoji 字体时显示方框。
+function weatherIcon(text) {
   text = text || '';
-  if (text.includes('雪')) return '🌨️';
-  if (text.includes('雷')) return '⛈️';
-  if (text.includes('雨') || text.includes('阵')) return '🌧️';
-  if (text.includes('雾') || text.includes('霾') || text.includes('尘')) return '🌫️';
-  if (text.includes('云') || text.includes('阴')) return '☁️';
-  if (text.includes('晴')) return '☀️';
-  return '🌤️';
+  if (text.includes('雪')) return { type: 'snow', label: '雪' };
+  if (text.includes('雷')) return { type: 'thunder', label: '雷' };
+  if (text.includes('雨') || text.includes('阵')) return { type: 'rain', label: '雨' };
+  if (text.includes('雾') || text.includes('霾') || text.includes('尘')) return { type: 'fog', label: '雾' };
+  if (text.includes('云') || text.includes('阴')) return { type: 'cloudy', label: '云' };
+  return { type: 'clear', label: '晴' };
 }
 
 async function fetchWeather() {
   try {
     const w = await (await fetch(API.weather)).json();
     const condition = w.condition || '--';
-    document.getElementById('weather-emoji').textContent = weatherToEmoji(condition);
+    const icon = weatherIcon(condition);
+    const iconEl = document.getElementById('weather-icon');
+    iconEl.className = 'weather-icon weather-icon-' + icon.type;
+    iconEl.textContent = icon.label;
     document.getElementById('weather-location').textContent = w.city || '深圳·宝安';
     document.getElementById('weather-temp').textContent = w.temperature + '°C';
     const meta = [condition];

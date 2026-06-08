@@ -58,12 +58,34 @@ body {
 .weather-main {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 22px;
 }
-.weather-emoji {
-  font-size: 50px;
+.weather-icon {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #111111;
+  border-radius: 50%;
+  color: #111111;
+  background: #ffffff;
+  font-size: 24px;
+  font-weight: 700;
   line-height: 1;
-  flex-shrink: 0;
+}
+.weather-icon-cloudy,
+.weather-icon-fog {
+  border-style: double;
+  border-width: 4px;
+}
+.weather-icon-rain,
+.weather-icon-snow {
+  border-radius: 4px 4px 50% 50%;
+}
+.weather-icon-thunder {
+  border-radius: 4px;
 }
 .weather-info {
   flex: 1;
@@ -143,7 +165,7 @@ body {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px 16px;
+  gap: 10px 20px;
   padding: 11px 0;
   font-size: 19px;
   line-height: 1.6;
@@ -199,7 +221,7 @@ body {
 .todo-meta-row {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 16px;
   flex-wrap: wrap;
   flex-shrink: 0;
   font-size: 15px;
@@ -209,7 +231,7 @@ body {
 .todo-meta {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   white-space: nowrap;
   color: var(--text-muted);
 }
@@ -281,8 +303,11 @@ body.reader-mode .card {
   padding: 17px 0 19px;
 }
 
-body.reader-mode .weather-emoji {
-  font-size: 56px;
+body.reader-mode .weather-icon {
+  width: 60px;
+  height: 60px;
+  flex-basis: 60px;
+  font-size: 27px;
 }
 
 body.reader-mode .weather-temp {
@@ -322,7 +347,7 @@ body.reader-mode .update-time {
   }
 
   .weather-main {
-    gap: 12px;
+    gap: 18px;
     flex-wrap: wrap;
   }
 
@@ -358,6 +383,6 @@ body.reader-mode .update-time {
 
   .todo-meta-row {
     width: 100%;
-    margin-left: 34px;
+    margin-left: 38px;
   }
 }

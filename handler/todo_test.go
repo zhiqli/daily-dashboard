@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestListIncludesTodosThroughDueDate(t *testing.T) {
+func TestListFiltersTodosOnlyByDueDate(t *testing.T) {
 	store := NewTodoStore(t.TempDir())
 	defer store.db.Close()
 
@@ -22,11 +22,10 @@ func TestListIncludesTodosThroughDueDate(t *testing.T) {
 	dueToday := store.Create("due today", todayDate, "")
 	dueTomorrow := store.Create("due tomorrow", tomorrow, "")
 
-	for _, todo := range []*struct {
+	for _, todo := range []struct {
 		id   string
 		date string
 	}{
-		{id: expired.ID, date: yesterday},
 		{id: dueToday.ID, date: yesterday},
 		{id: dueTomorrow.ID, date: yesterday},
 	} {

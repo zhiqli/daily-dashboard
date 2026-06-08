@@ -65,9 +65,7 @@ func today() string { return time.Now().Format("2006-01-02") }
 
 func (s *TodoStore) countVisible() int {
 	var n int
-	d := today()
-	s.db.QueryRow(`SELECT COUNT(*) FROM todos
-		WHERE date = ? OR (date < ? AND due_date >= ?)`, d, d, d).Scan(&n)
+	s.db.QueryRow("SELECT COUNT(*) FROM todos WHERE due_date >= ?", today()).Scan(&n)
 	return n
 }
 
@@ -77,9 +75,8 @@ func (s *TodoStore) List() []*model.Todo {
 	d := today()
 	rows, err := s.db.Query(`SELECT id, date, content, done, due_date, assignee, created_at, updated_at
 		FROM todos
-		WHERE date = ? OR (date < ? AND due_date >= ?)
-		ORDER BY done ASC, CASE WHEN due_date = '' THEN 1 ELSE 0 END, due_date ASC, created_at ASC`,
-		d, d, d)
+		WHERE due_date >= ?
+		ORDER BY done ASC, due_date ASC, created_at ASC`, d)
 	if err != nil {
 		return nil
 	}
