@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchWeather();
   fetchQuote();
   fetchTodos();
+  initTodoInteractions();
   connectSSE();
 });
 
@@ -128,25 +129,23 @@ function lunarDayName(day) {
 }
 
 // --- 天气 ---
-// 使用黑白文字图标，避免墨水屏缺少彩色 emoji 字体时显示方框。
 function weatherIcon(text) {
   text = text || '';
-  if (text.includes('雪')) return { type: 'snow', label: '雪' };
-  if (text.includes('雷')) return { type: 'thunder', label: '雷' };
-  if (text.includes('雨') || text.includes('阵')) return { type: 'rain', label: '雨' };
-  if (text.includes('雾') || text.includes('霾') || text.includes('尘')) return { type: 'fog', label: '雾' };
-  if (text.includes('云') || text.includes('阴')) return { type: 'cloudy', label: '云' };
-  return { type: 'clear', label: '晴' };
+  if (text.includes('雪')) return 'snow';
+  if (text.includes('雷')) return 'thunder';
+  if (text.includes('雨') || text.includes('阵')) return 'rain';
+  if (text.includes('雾') || text.includes('霾') || text.includes('尘')) return 'fog';
+  if (text.includes('云') || text.includes('阴')) return 'cloudy';
+  return 'clear';
 }
 
 async function fetchWeather() {
   try {
     const w = await (await fetch(API.weather)).json();
     const condition = w.condition || '--';
-    const icon = weatherIcon(condition);
     const iconEl = document.getElementById('weather-icon');
-    iconEl.className = 'weather-icon weather-icon-' + icon.type;
-    iconEl.textContent = icon.label;
+    iconEl.src = '/static/weather-icons/' + weatherIcon(condition) + '.png?v=2';
+    iconEl.alt = condition;
     document.getElementById('weather-location').textContent = w.city || '深圳·宝安';
     document.getElementById('weather-temp').textContent = w.temperature + '°C';
     const meta = [condition];
@@ -185,7 +184,7 @@ function renderTodos(todos) {
     if (t.due_date) meta += '<span class="todo-meta"><span class="todo-meta-icon todo-meta-icon-clock" aria-hidden="true"></span>' + esc(formatDueDate(t.due_date)) + '</span>';
     if (t.assignee) meta += '<span class="todo-meta"><span class="todo-meta-icon todo-meta-icon-person" aria-hidden="true"></span>' + esc(t.assignee) + '</span>';
     return `
-    <li class="todo-item" data-id="${t.id}">
+    <li class="todo-item" data-id="${t.id}" data-done="${t.done ? 'true' : 'false'}" role="button" tabindex="0" aria-pressed="${t.done ? 'true' : 'false'}">
       <span class="todo-marker${t.done ? ' done' : ''}"></span>
       <span class="todo-content${t.done ? ' done' : ''}">${esc(t.content)}</span>
       ${meta ? '<span class="todo-meta-row">' + meta + '</span>' : ''}
@@ -193,6 +192,57 @@ function renderTodos(todos) {
   }).join('');
 
   renderUpdateTime();
+}
+
+function initTodoInteractions() {
+  const list = document.getElementById('todo-list');
+  list.addEventListener('click', (event) => {
+    const item = findTodoItem(event.target);
+    if (item) toggleTodo(item);
+  });
+  list.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const item = findTodoItem(event.target);
+    if (!item) return;
+    event.preventDefault();
+    toggleTodo(item);
+  });
+}
+
+function findTodoItem(target) {
+  while (target && target !== document) {
+    if (target.classList && target.classList.contains('todo-item')) return target;
+    target = target.parentNode;
+  }
+  return null;
+}
+
+async function toggleTodo(item) {
+  if (item.classList.contains('is-updating')) return;
+
+  const nextDone = item.getAttribute('data-done') !== 'true';
+  setTodoDone(item, nextDone);
+  item.classList.add('is-updating');
+
+  try {
+    const response = await fetch(API.todos + '/' + encodeURIComponent(item.getAttribute('data-id')), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ done: nextDone }),
+    });
+    if (!response.ok) throw new Error('update failed');
+  } catch(e) {
+    setTodoDone(item, !nextDone);
+  } finally {
+    item.classList.remove('is-updating');
+  }
+}
+
+function setTodoDone(item, done) {
+  item.setAttribute('data-done', done ? 'true' : 'false');
+  item.setAttribute('aria-pressed', done ? 'true' : 'false');
+  toggleClass(item.querySelector('.todo-marker'), 'done', done);
+  toggleClass(item.querySelector('.todo-content'), 'done', done);
 }
 
 function formatDueDate(value) {

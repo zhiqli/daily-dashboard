@@ -64,28 +64,9 @@ body {
   width: 54px;
   height: 54px;
   flex: 0 0 54px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid #111111;
-  border-radius: 50%;
-  color: #111111;
-  background: #ffffff;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1;
-}
-.weather-icon-cloudy,
-.weather-icon-fog {
-  border-style: double;
-  border-width: 4px;
-}
-.weather-icon-rain,
-.weather-icon-snow {
-  border-radius: 4px 4px 50% 50%;
-}
-.weather-icon-thunder {
-  border-radius: 4px;
+  display: block;
+  object-fit: contain;
+  filter: grayscale(1) contrast(1.4);
 }
 .weather-info {
   flex: 1;
@@ -169,6 +150,15 @@ body {
   padding: 11px 0;
   font-size: 19px;
   line-height: 1.6;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.todo-item:focus {
+  outline: 2px solid #555555;
+  outline-offset: 3px;
+}
+.todo-item.is-updating {
+  pointer-events: none;
 }
 .todo-item + .todo-item {
   border-top: 1px solid #d8d8d8;
