@@ -196,10 +196,13 @@ function renderTodos(todos) {
     if (t.due_date) meta += '<span class="todo-meta"><span class="todo-meta-icon todo-meta-icon-clock" aria-hidden="true"></span>' + esc(formatDueDate(t.due_date)) + '</span>';
     if (t.assignee) meta += '<span class="todo-meta"><span class="todo-meta-icon todo-meta-icon-person" aria-hidden="true"></span>' + esc(t.assignee) + '</span>';
     return `
-    <li class="todo-item" data-id="${t.id}" data-done="${t.done ? 'true' : 'false'}" role="button" tabindex="0" aria-pressed="${t.done ? 'true' : 'false'}">
-      <span class="todo-marker${t.done ? ' done' : ''}"></span>
-      <span class="todo-content${t.done ? ' done' : ''}">${esc(t.content)}</span>
-      ${meta ? '<span class="todo-meta-row">' + meta + '</span>' : ''}
+    <li class="todo-shell" data-id="${t.id}">
+      <button class="todo-delete" type="button">删除</button>
+      <div class="todo-item" data-id="${t.id}" data-done="${t.done ? 'true' : 'false'}" role="button" tabindex="0" aria-pressed="${t.done ? 'true' : 'false'}">
+        <span class="todo-marker${t.done ? ' done' : ''}"></span>
+        <span class="todo-content${t.done ? ' done' : ''}">${esc(t.content)}</span>
+        ${meta ? '<span class="todo-meta-row">' + meta + '</span>' : ''}
+      </div>
     </li>`;
   }).join('');
 
@@ -209,8 +212,19 @@ function renderTodos(todos) {
 function initTodoInteractions() {
   const list = document.getElementById('todo-list');
   list.addEventListener('click', (event) => {
+    const deleteButton = findByClass(event.target, 'todo-delete');
+    if (deleteButton) {
+      deleteTodo(findByClass(deleteButton, 'todo-shell'));
+      return;
+    }
     const item = findTodoItem(event.target);
-    if (item) toggleTodo(item);
+    if (!item) return;
+    const shell = findByClass(item, 'todo-shell');
+    if (shell.classList.contains('revealed')) {
+      shell.classList.remove('revealed');
+      return;
+    }
+    if (item.getAttribute('data-ignore-click') !== '1') toggleTodo(item);
   });
   list.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -219,6 +233,59 @@ function initTodoInteractions() {
     event.preventDefault();
     toggleTodo(item);
   });
+  initTodoSwipe(list);
+}
+
+function initTodoSwipe(list) {
+  let shell = null;
+  let startX = 0;
+  let startY = 0;
+  function finishSwipe(endX, endY) {
+    if (!shell) return;
+    const dx = endX - startX;
+    const dy = endY - startY;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      document.querySelectorAll('.todo-shell.revealed').forEach(item => {
+        if (item !== shell) item.classList.remove('revealed');
+      });
+      toggleClass(shell, 'revealed', dx > 0);
+      const item = shell.querySelector('.todo-item');
+      item.setAttribute('data-ignore-click', '1');
+      setTimeout(() => item.removeAttribute('data-ignore-click'), 350);
+    }
+    shell = null;
+  }
+  list.addEventListener('touchstart', event => {
+    shell = findByClass(event.target, 'todo-shell');
+    if (!shell || !event.touches.length) return;
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
+  }, { passive: true });
+  list.addEventListener('touchend', event => {
+    if (!shell || !event.changedTouches.length) return;
+    finishSwipe(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+  }, { passive: true });
+  list.addEventListener('mousedown', event => {
+    shell = findByClass(event.target, 'todo-shell');
+    if (!shell) return;
+    startX = event.clientX;
+    startY = event.clientY;
+  });
+  list.addEventListener('mouseup', event => finishSwipe(event.clientX, event.clientY));
+}
+
+async function deleteTodo(shell) {
+  if (!shell) return;
+  const id = shell.getAttribute('data-id');
+  shell.classList.add('is-updating');
+  try {
+    const response = await fetch(API.todos + '/' + encodeURIComponent(id), { method: 'DELETE' });
+    if (!response.ok) throw new Error('delete failed');
+    fetchTodos();
+  } catch(e) {
+    shell.classList.remove('is-updating');
+    shell.classList.remove('revealed');
+  }
 }
 
 function findTodoItem(target) {
@@ -268,7 +335,6 @@ async function fetchHomework() {
 function renderHomework(items) {
   const container = document.getElementById('homework-groups');
   pageHasContent.homework = !!(items && items.length);
-  document.getElementById('homework-count').textContent = (items ? items.length : 0) + ' 项';
   if (!pageHasContent.homework) {
     container.innerHTML = '<div class="empty-state">暂无作业</div>';
     return;
@@ -338,7 +404,6 @@ async function fetchMenu() {
 function renderMenu(items) {
   const container = document.getElementById('menu-groups');
   pageHasContent.menu = !!(items && items.length);
-  document.getElementById('menu-count').textContent = (items ? items.length : 0) + ' 道';
   if (!pageHasContent.menu) {
     container.innerHTML = '<div class="empty-state">今日暂无菜单</div>';
     return;
@@ -375,12 +440,8 @@ function findByClass(target, className) {
 function initPages() {
   pagePinned = readStorage('daily-dashboard-page-pinned') === '1';
   document.getElementById('page-pin').setAttribute('aria-pressed', pagePinned ? 'true' : 'false');
-  document.querySelectorAll('.page-tab').forEach(tab => {
-    tab.addEventListener('click', () => showPage(tab.getAttribute('data-page-target')));
-  });
-  document.getElementById('page-prev').addEventListener('click', () => stepPage(-1, false));
-  document.getElementById('page-next').addEventListener('click', () => stepPage(1, false));
   document.getElementById('page-pin').addEventListener('click', togglePagePin);
+  initPageSwipe();
   restartCarousel();
 }
 
@@ -388,8 +449,41 @@ function showPage(name) {
   if (!PAGE_ORDER.includes(name)) return;
   activePage = name;
   document.querySelectorAll('.page').forEach(page => toggleClass(page, 'active', page.getAttribute('data-page') === name));
-  document.querySelectorAll('.page-tab').forEach(tab => toggleClass(tab, 'active', tab.getAttribute('data-page-target') === name));
+  document.querySelectorAll('.page-dot').forEach(dot => toggleClass(dot, 'active', dot.getAttribute('data-page-dot') === name));
   restartCarousel();
+}
+
+function initPageSwipe() {
+  const pages = document.querySelector('.pages');
+  let startX = 0;
+  let startY = 0;
+  let enabled = false;
+  function finishSwipe(endX, endY) {
+    if (!enabled) return;
+    const dx = endX - startX;
+    const dy = endY - startY;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) {
+      stepPage(dx < 0 ? 1 : -1, false);
+    }
+    enabled = false;
+  }
+  pages.addEventListener('touchstart', event => {
+    enabled = !findByClass(event.target, 'todo-shell');
+    if (!enabled || !event.touches.length) return;
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
+  }, { passive: true });
+  pages.addEventListener('touchend', event => {
+    if (!enabled || !event.changedTouches.length) return;
+    finishSwipe(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+  }, { passive: true });
+  pages.addEventListener('mousedown', event => {
+    enabled = !findByClass(event.target, 'todo-shell');
+    if (!enabled) return;
+    startX = event.clientX;
+    startY = event.clientY;
+  });
+  pages.addEventListener('mouseup', event => finishSwipe(event.clientX, event.clientY));
 }
 
 function stepPage(direction, contentOnly) {
