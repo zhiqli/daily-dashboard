@@ -64,6 +64,8 @@ function renderCalendar() {
   document.getElementById('calendar-date').textContent = month + '月' + day + '日';
   document.getElementById('calendar-weekday').textContent = weekdays[beijing.getUTCDay()];
   document.getElementById('calendar-lunar').textContent = lunar;
+  document.getElementById('menu-date-title').textContent =
+    year + '年' + month + '月' + day + '日菜单';
 }
 
 function scheduleCalendarRefresh() {
@@ -341,14 +343,15 @@ function renderHomework(items) {
   }
   const groups = groupBy(items, 'subject');
   container.innerHTML = Object.keys(groups).map(subject => `
-    <section class="content-group">
-      <div class="group-title">${esc(subject)}<span>${groups[subject].length} 项</span></div>
-      ${groups[subject].map(h => `
-        <div class="homework-item" data-id="${h.id}" data-done="${h.done ? 'true' : 'false'}" role="button" tabindex="0" aria-pressed="${h.done ? 'true' : 'false'}">
-          <span class="todo-marker${h.done ? ' done' : ''}"></span>
+    <section class="subject-block">
+      <h2 class="subject-title">${esc(subject)}</h2>
+      <ol class="subject-list">
+        ${groups[subject].map(h => `
+        <li class="homework-item" data-id="${h.id}" data-done="${h.done ? 'true' : 'false'}" role="button" tabindex="0" aria-pressed="${h.done ? 'true' : 'false'}">
           <span class="homework-main${h.done ? ' done' : ''}">${esc(h.content)}</span>
           <span class="homework-due">${esc(formatDueDate(h.due_date))}</span>
-        </div>`).join('')}
+        </li>`).join('')}
+      </ol>
     </section>`).join('');
 }
 
@@ -408,15 +411,8 @@ function renderMenu(items) {
     container.innerHTML = '<div class="empty-state">今日暂无菜单</div>';
     return;
   }
-  const groups = groupBy(items, 'meal');
-  container.innerHTML = Object.keys(groups).map(meal => `
-    <section class="content-group">
-      <div class="group-title">${esc(meal)}<span>${groups[meal].length} 道</span></div>
-      ${groups[meal].map(item => `
-        <div class="menu-item">
-          <span class="menu-content">${esc(item.content)}</span>
-        </div>`).join('')}
-    </section>`).join('');
+  container.innerHTML = items.map(item => `
+    <div class="menu-item">${esc(item.content)}</div>`).join('');
 }
 
 function groupBy(items, key) {

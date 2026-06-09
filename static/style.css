@@ -71,36 +71,36 @@ body {
   content: "";
 }
 .pin-action span {
-  width: 2px;
-  height: 13px;
-  left: 13px;
-  top: 8px;
-  background: #555555;
-  transform: rotate(35deg);
-}
-.pin-action span::before {
-  width: 10px;
-  height: 7px;
-  left: -4px;
-  top: -5px;
+  width: 14px;
+  height: 8px;
+  left: 7px;
+  top: 3px;
   border: 2px solid #555555;
-  border-radius: 50% 50% 2px 2px;
+  border-radius: 2px 2px 0 0;
   background: #ffffff;
 }
-.pin-action span::after {
-  width: 7px;
+.pin-action span::before {
+  width: 18px;
   height: 2px;
-  left: -2px;
-  bottom: -2px;
+  left: -4px;
+  top: 8px;
   background: #555555;
 }
-.pin-action[aria-pressed="true"] span,
-.pin-action[aria-pressed="true"] span::after {
-  background: #111111;
+.pin-action span::after {
+  width: 4px;
+  height: 12px;
+  left: 3px;
+  top: 10px;
+  background: #555555;
+  clip-path: polygon(25% 0, 75% 0, 50% 100%);
 }
-.pin-action[aria-pressed="true"] span::before {
+.pin-action[aria-pressed="true"] span {
   background: #111111;
   border-color: #111111;
+}
+.pin-action[aria-pressed="true"] span::before,
+.pin-action[aria-pressed="true"] span::after {
+  background: #111111;
 }
 
 .pages {
@@ -375,30 +375,32 @@ body {
   display: flex;
   flex-direction: column;
 }
-.content-group {
-  padding: 13px 0 12px;
-  border-bottom: 1px solid var(--rule-soft);
+
+#homework-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  align-items: start;
+  gap: 0 32px;
 }
-.group-title {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 4px;
-  font-size: 16px;
+.subject-block {
+  min-width: 0;
+  padding: 14px 0 12px;
+  border-bottom: 1px solid var(--rule-soft);
+  break-inside: avoid;
+}
+.subject-title {
+  margin: 0 0 5px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid var(--text);
+  font-size: 19px;
   font-weight: 700;
 }
-.group-title span {
-  color: var(--text-light);
-  font-size: 13px;
-}
-.homework-item,
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 10px 0;
+.subject-list {
+  margin: 0;
+  padding-left: 1.65em;
 }
 .homework-item {
+  padding: 7px 0 7px 3px;
   cursor: pointer;
 }
 .homework-item:focus {
@@ -408,19 +410,33 @@ body {
 .homework-item.is-updating {
   pointer-events: none;
 }
-.homework-main,
-.menu-content {
-  flex: 1;
-  font-size: 20px;
+.homework-main {
+  font-size: 19px;
 }
 .homework-main.done {
   color: var(--text-light);
   text-decoration: line-through;
 }
 .homework-due {
+  display: block;
+  margin-top: 1px;
   color: var(--text-muted);
-  font-size: 14px;
-  white-space: nowrap;
+  font-size: 13px;
+}
+.menu-date-title {
+  padding: 18px 0 10px;
+  border-bottom: 2px solid var(--text);
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+.menu-list {
+  padding: 16px 0;
+  text-align: center;
+}
+.menu-item {
+  padding: 8px 0;
+  font-size: 21px;
 }
 /* --- Kindle 电子书模式 --- */
 body.reader-mode {
@@ -520,12 +536,16 @@ body.reader-mode .update-time {
     width: 100%;
     margin-left: 38px;
   }
-  .homework-item,
-  .menu-item {
-    align-items: flex-start;
+  #homework-groups {
+    grid-template-columns: 1fr;
   }
-  .homework-main,
-  .menu-content {
+  .homework-main {
     font-size: 18px;
+  }
+  .menu-date-title {
+    font-size: 21px;
+  }
+  .menu-item {
+    font-size: 19px;
   }
 }
