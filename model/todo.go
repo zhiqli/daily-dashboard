@@ -13,6 +13,26 @@ type Todo struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type Homework struct {
+	ID        string    `json:"id"`
+	Date      string    `json:"date"`
+	Subject   string    `json:"subject"`
+	Content   string    `json:"content"`
+	Done      bool      `json:"done"`
+	DueDate   string    `json:"due_date"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type MenuItem struct {
+	ID        string    `json:"id"`
+	Date      string    `json:"date"`
+	Meal      string    `json:"meal"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type Quote struct {
 	Text   string `json:"text"`
 	Author string `json:"author"`

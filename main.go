@@ -61,6 +61,10 @@ func main() {
 	mux.HandleFunc("/api/quote", handler.QuoteHandler)
 	mux.HandleFunc("/api/todos", handler.MakeTodoHandler(store))
 	mux.HandleFunc("/api/todos/", handler.MakeTodoHandler(store))
+	mux.HandleFunc("/api/homework", handler.MakeHomeworkHandler(store))
+	mux.HandleFunc("/api/homework/", handler.MakeHomeworkHandler(store))
+	mux.HandleFunc("/api/menu", handler.MakeMenuHandler(store))
+	mux.HandleFunc("/api/menu/", handler.MakeMenuHandler(store))
 	mux.HandleFunc("/api/events", handler.SSEHandler(broker))
 	mux.HandleFunc("/api/refresh", func(w http.ResponseWriter, r *http.Request) {
 		store.DailyRefresh()

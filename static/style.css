@@ -33,6 +33,63 @@ body {
   line-height: 1.72;
 }
 
+.page-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #111111;
+}
+.page-tabs,
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.page-tab,
+.page-action {
+  min-height: 32px;
+  border: 0;
+  background: #ffffff;
+  color: #444444;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 3px 5px;
+}
+.page-tab.active {
+  color: #111111;
+  border-bottom: 3px solid #111111;
+}
+.page-action {
+  min-width: 32px;
+  border: 1px solid #777777;
+  font-size: 22px;
+  line-height: 1;
+}
+.pin-action {
+  min-width: 48px;
+  font-size: 13px;
+}
+.pin-action[aria-pressed="true"] {
+  color: #ffffff;
+  background: #222222;
+  border-color: #222222;
+}
+
+.pages {
+  padding-top: 4px;
+}
+.page {
+  display: none;
+}
+.page.active {
+  display: block;
+}
+.page:not(.active) {
+  display: none !important;
+}
 .dashboard {
   display: flex;
   flex-direction: column;
@@ -66,7 +123,7 @@ body {
   flex: 0 0 54px;
   display: block;
   object-fit: contain;
-  filter: grayscale(1) contrast(1.4);
+  filter: grayscale(1) contrast(4) brightness(.25);
 }
 .weather-info {
   flex: 1;
@@ -276,6 +333,78 @@ body {
   border-radius: 0 0 8px 8px;
 }
 
+.page-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 20px 0 12px;
+  border-bottom: 3px solid #111111;
+}
+.page-heading h1 {
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+.page-kicker,
+.page-count {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+.page-kicker {
+  margin-bottom: 4px;
+}
+.group-list {
+  display: flex;
+  flex-direction: column;
+}
+.content-group {
+  padding: 15px 0 12px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.group-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.group-title span {
+  color: var(--text-light);
+  font-size: 13px;
+}
+.homework-item,
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 0;
+}
+.homework-item {
+  cursor: pointer;
+}
+.homework-item:focus {
+  outline: 2px solid #555555;
+  outline-offset: 3px;
+}
+.homework-item.is-updating {
+  pointer-events: none;
+}
+.homework-main,
+.menu-content {
+  flex: 1;
+  font-size: 20px;
+}
+.homework-main.done {
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+.homework-due {
+  color: var(--text-muted);
+  font-size: 14px;
+  white-space: nowrap;
+}
 /* --- Kindle 电子书模式 --- */
 body.reader-mode {
   max-width: none;
@@ -287,6 +416,9 @@ body.reader-mode .dashboard {
   min-height: calc(100vh - 56px);
   gap: 14px;
   padding-top: 24px;
+}
+body.reader-mode .page-heading h1 {
+  font-size: 38px;
 }
 
 body.reader-mode .card {
@@ -375,4 +507,32 @@ body.reader-mode .update-time {
     width: 100%;
     margin-left: 38px;
   }
+  .page-heading h1 {
+    font-size: 30px;
+  }
+  .homework-item,
+  .menu-item {
+    align-items: flex-start;
+  }
+  .homework-main,
+  .menu-content {
+    font-size: 18px;
+  }
 }
+  .page-nav {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .page-tabs,
+  .page-actions {
+    gap: 4px;
+  }
+  .page-tab {
+    font-size: 13px;
+  }
+  .page-action {
+    min-width: 30px;
+  }
+  .pin-action {
+    min-width: 42px;
+  }

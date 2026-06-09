@@ -46,6 +46,18 @@ func NewTodoStore(dataDir string) *TodoStore {
 	if err != nil {
 		log.Fatalf("[store] 建表失败: %v", err)
 	}
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS homework (
+		id TEXT PRIMARY KEY, date TEXT NOT NULL, subject TEXT NOT NULL DEFAULT '',
+		content TEXT NOT NULL DEFAULT '', done INTEGER NOT NULL DEFAULT 0,
+		due_date TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS menu_items (
+		id TEXT PRIMARY KEY, date TEXT NOT NULL, meal TEXT NOT NULL DEFAULT '',
+		content TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+	)`)
+	if err != nil {
+		log.Fatalf("[store] 建作业/菜单表失败: %v", err)
+	}
 
 	db.Exec("ALTER TABLE todos ADD COLUMN due_date TEXT NOT NULL DEFAULT ''")
 	db.Exec("ALTER TABLE todos ADD COLUMN assignee TEXT NOT NULL DEFAULT ''")

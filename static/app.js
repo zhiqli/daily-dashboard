@@ -2,17 +2,29 @@ const API = {
   weather: '/api/weather',
   quote:   '/api/quote',
   todos:   '/api/todos',
+  homework:'/api/homework',
+  menu:    '/api/menu',
   events:  '/api/events',
 };
 
+const PAGE_ORDER = ['overview', 'homework', 'menu'];
+const pageHasContent = { overview: true, homework: false, menu: false };
+let activePage = 'overview';
+let pagePinned = false;
+let carouselTimer = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   initReaderMode();
+  initPages();
   renderCalendar();
   scheduleCalendarRefresh();
   fetchWeather();
   fetchQuote();
   fetchTodos();
+  fetchHomework();
+  fetchMenu();
   initTodoInteractions();
+  initHomeworkInteractions();
   connectSSE();
 });
 
@@ -144,7 +156,7 @@ async function fetchWeather() {
     const w = await (await fetch(API.weather)).json();
     const condition = w.condition || '--';
     const iconEl = document.getElementById('weather-icon');
-    iconEl.src = '/static/weather-icons/' + weatherIcon(condition) + '.png?v=2';
+    iconEl.src = '/static/weather-icons/' + weatherIcon(condition) + '.png?v=3';
     iconEl.alt = condition;
     document.getElementById('weather-location').textContent = w.city || '深圳·宝安';
     document.getElementById('weather-temp').textContent = w.temperature + '°C';
@@ -245,6 +257,162 @@ function setTodoDone(item, done) {
   toggleClass(item.querySelector('.todo-content'), 'done', done);
 }
 
+// --- 作业 ---
+async function fetchHomework() {
+  try {
+    const items = await (await fetch(API.homework)).json();
+    renderHomework(items);
+  } catch(e) {}
+}
+
+function renderHomework(items) {
+  const container = document.getElementById('homework-groups');
+  pageHasContent.homework = !!(items && items.length);
+  document.getElementById('homework-count').textContent = (items ? items.length : 0) + ' 项';
+  if (!pageHasContent.homework) {
+    container.innerHTML = '<div class="empty-state">暂无作业</div>';
+    return;
+  }
+  const groups = groupBy(items, 'subject');
+  container.innerHTML = Object.keys(groups).map(subject => `
+    <section class="content-group">
+      <div class="group-title">${esc(subject)}<span>${groups[subject].length} 项</span></div>
+      ${groups[subject].map(h => `
+        <div class="homework-item" data-id="${h.id}" data-done="${h.done ? 'true' : 'false'}" role="button" tabindex="0" aria-pressed="${h.done ? 'true' : 'false'}">
+          <span class="todo-marker${h.done ? ' done' : ''}"></span>
+          <span class="homework-main${h.done ? ' done' : ''}">${esc(h.content)}</span>
+          <span class="homework-due">${esc(formatDueDate(h.due_date))}</span>
+        </div>`).join('')}
+    </section>`).join('');
+}
+
+function initHomeworkInteractions() {
+  const container = document.getElementById('homework-groups');
+  container.addEventListener('click', event => {
+    const item = findByClass(event.target, 'homework-item');
+    if (item) toggleContentItem(item, API.homework, '.homework-main');
+  });
+  container.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const item = findByClass(event.target, 'homework-item');
+    if (!item) return;
+    event.preventDefault();
+    toggleContentItem(item, API.homework, '.homework-main');
+  });
+}
+
+async function toggleContentItem(item, endpoint, contentSelector) {
+  if (item.classList.contains('is-updating')) return;
+  const nextDone = item.getAttribute('data-done') !== 'true';
+  setContentDone(item, nextDone, contentSelector);
+  item.classList.add('is-updating');
+  try {
+    const response = await fetch(endpoint + '/' + encodeURIComponent(item.getAttribute('data-id')), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ done: nextDone }),
+    });
+    if (!response.ok) throw new Error('update failed');
+  } catch(e) {
+    setContentDone(item, !nextDone, contentSelector);
+  } finally {
+    item.classList.remove('is-updating');
+  }
+}
+
+function setContentDone(item, done, contentSelector) {
+  item.setAttribute('data-done', done ? 'true' : 'false');
+  item.setAttribute('aria-pressed', done ? 'true' : 'false');
+  toggleClass(item.querySelector('.todo-marker'), 'done', done);
+  toggleClass(item.querySelector(contentSelector), 'done', done);
+}
+
+// --- 今日菜单 ---
+async function fetchMenu() {
+  try {
+    const items = await (await fetch(API.menu)).json();
+    renderMenu(items);
+  } catch(e) {}
+}
+
+function renderMenu(items) {
+  const container = document.getElementById('menu-groups');
+  pageHasContent.menu = !!(items && items.length);
+  document.getElementById('menu-count').textContent = (items ? items.length : 0) + ' 道';
+  if (!pageHasContent.menu) {
+    container.innerHTML = '<div class="empty-state">今日暂无菜单</div>';
+    return;
+  }
+  const groups = groupBy(items, 'meal');
+  container.innerHTML = Object.keys(groups).map(meal => `
+    <section class="content-group">
+      <div class="group-title">${esc(meal)}<span>${groups[meal].length} 道</span></div>
+      ${groups[meal].map(item => `
+        <div class="menu-item">
+          <span class="menu-content">${esc(item.content)}</span>
+        </div>`).join('')}
+    </section>`).join('');
+}
+
+function groupBy(items, key) {
+  return items.reduce((groups, item) => {
+    const name = item[key] || '其他';
+    if (!groups[name]) groups[name] = [];
+    groups[name].push(item);
+    return groups;
+  }, {});
+}
+
+function findByClass(target, className) {
+  while (target && target !== document) {
+    if (target.classList && target.classList.contains(className)) return target;
+    target = target.parentNode;
+  }
+  return null;
+}
+
+// --- 页面轮播 ---
+function initPages() {
+  pagePinned = readStorage('daily-dashboard-page-pinned') === '1';
+  document.getElementById('page-pin').setAttribute('aria-pressed', pagePinned ? 'true' : 'false');
+  document.querySelectorAll('.page-tab').forEach(tab => {
+    tab.addEventListener('click', () => showPage(tab.getAttribute('data-page-target')));
+  });
+  document.getElementById('page-prev').addEventListener('click', () => stepPage(-1, false));
+  document.getElementById('page-next').addEventListener('click', () => stepPage(1, false));
+  document.getElementById('page-pin').addEventListener('click', togglePagePin);
+  restartCarousel();
+}
+
+function showPage(name) {
+  if (!PAGE_ORDER.includes(name)) return;
+  activePage = name;
+  document.querySelectorAll('.page').forEach(page => toggleClass(page, 'active', page.getAttribute('data-page') === name));
+  document.querySelectorAll('.page-tab').forEach(tab => toggleClass(tab, 'active', tab.getAttribute('data-page-target') === name));
+  restartCarousel();
+}
+
+function stepPage(direction, contentOnly) {
+  const pages = contentOnly ? PAGE_ORDER.filter(name => pageHasContent[name]) : PAGE_ORDER;
+  if (pages.length < 2) return;
+  let index = pages.indexOf(activePage);
+  if (index < 0) index = 0;
+  showPage(pages[(index + direction + pages.length) % pages.length]);
+}
+
+function togglePagePin() {
+  pagePinned = !pagePinned;
+  document.getElementById('page-pin').setAttribute('aria-pressed', pagePinned ? 'true' : 'false');
+  writeStorage('daily-dashboard-page-pinned', pagePinned ? '1' : '0');
+  restartCarousel();
+}
+
+function restartCarousel() {
+  if (carouselTimer) clearTimeout(carouselTimer);
+  if (pagePinned) return;
+  carouselTimer = setTimeout(() => stepPage(1, true), 60000);
+}
+
 function formatDueDate(value) {
   const parts = value.split('-');
   if (parts.length !== 3) return value;
@@ -320,6 +488,14 @@ function toggleClass(el, className, enabled) {
   }
 }
 
+function readStorage(key) {
+  try { return window.localStorage.getItem(key); } catch(e) { return null; }
+}
+
+function writeStorage(key, value) {
+  try { window.localStorage.setItem(key, value); } catch(e) {}
+}
+
 // --- SSE ---
 function connectSSE() {
   const es = new EventSource(API.events);
@@ -327,7 +503,9 @@ function connectSSE() {
     try {
       const ev = JSON.parse(e.data);
       if (['todo_created','todo_updated','todo_deleted','agent_summary'].includes(ev.type)) fetchTodos();
-      if (ev.type === 'daily_refresh') { renderCalendar(); fetchWeather(); fetchQuote(); fetchTodos(); }
+      if (['homework_created','homework_updated','homework_deleted'].includes(ev.type)) fetchHomework();
+      if (['menu_created','menu_updated','menu_deleted'].includes(ev.type)) fetchMenu();
+      if (ev.type === 'daily_refresh') { renderCalendar(); fetchWeather(); fetchQuote(); fetchTodos(); fetchHomework(); fetchMenu(); }
     } catch(err) {}
   };
   es.onerror = () => { es.close(); setTimeout(connectSSE, 5000); };

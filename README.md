@@ -2,6 +2,8 @@
 
 极简风格的墨水屏 / 窄屏每日仪表盘。启动后显示天气、名言、今日待办三张卡片，每天凌晨 6:00 自动刷新。
 
+页面包含今日面板、作业和今日菜单；默认每分钟在有内容的页面间轮播，也支持手动切换和固定当前页。
+
 ## 功能
 
 | 卡片 | 数据来源 | 说明 |
@@ -9,6 +11,8 @@
 | 天气 | 心知天气 API | 深圳实时温度、天气状况，30 分钟缓存 |
 | 名言 | 今日诗词 → 一言 → 本地 fallback | 三级降级，保证始终有内容 |
 | 待办 | SQLite 本地持久化 | 支持点击切换完成状态、CRUD、SSE 实时推送、AI Agent 批量同步 |
+| 作业 | SQLite 本地持久化 | 按科目分组、截止日期过滤、点击切换完成状态 |
+| 今日菜单 | SQLite 本地持久化 | 按餐次分组，仅显示当天菜单 |
 
 ## 快速开始
 
@@ -58,6 +62,10 @@ curl -X DELETE localhost:8081/api/todos/{id}
 | `/api/quote` | GET | 每日名言 |
 | `/api/todos` | GET / POST | Todo 列表 / 新增 |
 | `/api/todos/{id}` | PUT / DELETE | 更新 / 删除 Todo |
+| `/api/homework` | GET / POST | 作业列表 / 新增 |
+| `/api/homework/{id}` | PUT / DELETE | 完成状态 / 删除作业 |
+| `/api/menu` | GET / POST | 今日菜单 / 新增菜单项 |
+| `/api/menu/{id}` | DELETE | 删除菜单项 |
 | `/api/events` | GET | SSE 事件流 |
 | `/api/agent/summary` | POST | AI Agent 批量同步 |
 | `/api/refresh` | POST | 手动触发每日刷新 |

@@ -7,40 +7,64 @@
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<div class="dashboard">
+<nav class="page-nav" aria-label="页面切换">
+  <div class="page-tabs">
+    <button class="page-tab active" type="button" data-page-target="overview">今日</button>
+    <button class="page-tab" type="button" data-page-target="homework">作业</button>
+    <button class="page-tab" type="button" data-page-target="menu">菜单</button>
+  </div>
+  <div class="page-actions">
+    <button class="page-action" id="page-prev" type="button" aria-label="上一页">‹</button>
+    <button class="page-action pin-action" id="page-pin" type="button" aria-pressed="false">固定</button>
+    <button class="page-action" id="page-next" type="button" aria-label="下一页">›</button>
+  </div>
+</nav>
 
-  <!-- 天气 + 地点 -->
-  <div class="card weather-card">
-    <div class="weather-main">
-      <img class="weather-icon" id="weather-icon" src="/static/weather-icons/clear.png?v=2" alt="晴">
-      <div class="weather-info">
-        <div class="weather-location" id="weather-location">深圳·宝安</div>
-        <div class="weather-temp" id="weather-temp">--°C</div>
-        <div class="weather-meta" id="weather-meta">加载中…</div>
-      </div>
-      <div class="calendar-info">
-        <div class="calendar-date" id="calendar-date">--月--日</div>
-        <div class="calendar-weekday" id="calendar-weekday">星期--</div>
-        <div class="calendar-lunar" id="calendar-lunar">农历 --</div>
+<main class="pages">
+  <section class="dashboard page active" data-page="overview" aria-label="今日面板">
+    <div class="card weather-card">
+      <div class="weather-main">
+        <img class="weather-icon" id="weather-icon" src="/static/weather-icons/clear.png?v=3" alt="晴">
+        <div class="weather-info">
+          <div class="weather-location" id="weather-location">深圳·宝安</div>
+          <div class="weather-temp" id="weather-temp">--°C</div>
+          <div class="weather-meta" id="weather-meta">加载中…</div>
+        </div>
+        <div class="calendar-info">
+          <div class="calendar-date" id="calendar-date">--月--日</div>
+          <div class="calendar-weekday" id="calendar-weekday">星期--</div>
+          <div class="calendar-lunar" id="calendar-lunar">农历 --</div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 名言 -->
-  <div class="card">
-    <div class="quote-text" id="quote-text">加载中…</div>
-    <div class="quote-author" id="quote-author"></div>
-  </div>
+    <div class="card">
+      <div class="quote-text" id="quote-text">加载中…</div>
+      <div class="quote-author" id="quote-author"></div>
+    </div>
 
-  <!-- Todo -->
-  <div class="card" id="todos-panel">
-    <div class="section-label">待办事项</div>
-    <ul id="todo-list" class="todo-list">
-      <li class="empty-state">加载中…</li>
-    </ul>
-  </div>
+    <div class="card" id="todos-panel">
+      <div class="section-label">待办事项</div>
+      <ul id="todo-list" class="todo-list"><li class="empty-state">加载中…</li></ul>
+    </div>
+  </section>
 
-</div>
+  <section class="page" data-page="homework" aria-label="作业">
+    <header class="page-heading">
+      <div><div class="page-kicker">学习安排</div><h1>作业</h1></div>
+      <div class="page-count" id="homework-count">0 项</div>
+    </header>
+    <div id="homework-groups" class="group-list"><div class="empty-state">暂无作业</div></div>
+  </section>
+
+  <section class="page" data-page="menu" aria-label="今日菜单">
+    <header class="page-heading">
+      <div><div class="page-kicker">今日餐食</div><h1>菜单</h1></div>
+      <div class="page-count" id="menu-count">0 道</div>
+    </header>
+    <div id="menu-groups" class="group-list"><div class="empty-state">今日暂无菜单</div></div>
+  </section>
+</main>
 <script src="/static/app.js"></script>
 </body>
 </html>

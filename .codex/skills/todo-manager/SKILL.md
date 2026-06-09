@@ -1,8 +1,8 @@
 ---
 name: todo-manager
-description: Manage daily dashboard todo items via HTTP API. Trigger when the user asks to add, delete, modify, complete, or list tasks/todos/待办/待办项.
+description: Manage daily dashboard todos, homework, and daily menu items via HTTP API. Trigger when the user asks to add, delete, modify, complete, or list tasks/todos/待办/作业/家庭作业/菜单/今日菜单.
 metadata:
-  short-description: CRUD daily dashboard todos
+  short-description: Manage todos, homework, and menus
 ---
 
 # Todo Manager
@@ -92,3 +92,20 @@ Content-Type: application/json
 4. 修改 → find id, then PUT /api/todos/{id} with new fields
 5. 设置截止日期 → PUT /api/todos/{id} with `{"due_date":"2026-06-08"}`
 6. 设置待办人 → PUT /api/todos/{id} with `{"assignee":"王五"}`
+
+## Homework
+
+- List: `GET /api/homework`
+- Add: `POST /api/homework` with `{"subject":"数学","content":"完成练习册第 12 页","due_date":"2026-06-10"}`
+- Update: `PUT /api/homework/{id}` with any of `subject`, `content`, `due_date`, or `done`
+- Complete/uncomplete: `PUT /api/homework/{id}` with `{"done":true}` or `{"done":false}`
+- Delete: `DELETE /api/homework/{id}`
+- Keep homework content concise; put the subject only in `subject` and the deadline only in `due_date`.
+
+## Daily Menu
+
+- List today's menu: `GET /api/menu`
+- Add: `POST /api/menu` with `{"meal":"晚餐","content":"番茄炒蛋","date":"2026-06-09"}`
+- Update: `PUT /api/menu/{id}` with any of `meal`, `content`, or `date`
+- Delete: `DELETE /api/menu/{id}`
+- Use `早餐`、`午餐`、`晚餐` or `加餐` for `meal`; omit `date` to default to today.
