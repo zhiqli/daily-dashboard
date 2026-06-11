@@ -349,7 +349,6 @@ function renderHomework(items) {
         ${groups[subject].map(h => `
         <li class="homework-item" data-id="${h.id}" data-done="${h.done ? 'true' : 'false'}" role="button" tabindex="0" aria-pressed="${h.done ? 'true' : 'false'}">
           <span class="homework-main${h.done ? ' done' : ''}">${esc(h.content)}</span>
-          <span class="homework-due">${esc(formatDueDate(h.due_date))}</span>
         </li>`).join('')}
       </ol>
     </section>`).join('');

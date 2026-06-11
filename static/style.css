@@ -417,12 +417,6 @@ body {
   color: var(--text-light);
   text-decoration: line-through;
 }
-.homework-due {
-  display: block;
-  margin-top: 1px;
-  color: var(--text-muted);
-  font-size: 13px;
-}
 .menu-date-title {
   padding: 18px 0 10px;
   border-bottom: 2px solid var(--text);
