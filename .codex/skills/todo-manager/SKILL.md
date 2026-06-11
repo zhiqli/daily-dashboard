@@ -1,6 +1,6 @@
 ---
 name: todo-manager
-description: Manage daily dashboard todos, homework, and daily menu items via HTTP API. Trigger when the user asks to add, delete, modify, complete, or list tasks/todos/待办/作业/家庭作业/菜单/今日菜单.
+description: Manage daily dashboard todos, homework, and daily menu items via HTTP API. Trigger when the user asks to add, record, delete, modify, complete, or list tasks/todos/待办/作业/家庭作业/菜单/今日菜单, including natural phrases such as “记录一下数学作业，今天完成” or “今天的菜单是”.
 metadata:
   short-description: Manage todos, homework, and menus
 ---
@@ -93,6 +93,17 @@ Content-Type: application/json
 5. 设置截止日期 → PUT /api/todos/{id} with `{"due_date":"2026-06-08"}`
 6. 设置待办人 → PUT /api/todos/{id} with `{"assignee":"王五"}`
 
+## Natural Language Rules
+
+- Act directly when the intent and content are clear; do not ask the user to restate information already present.
+- Convert relative dates using the user's current timezone, then send `YYYY-MM-DD`.
+  - `今天完成`、`今天之前完成` → today
+  - `明天完成`、`明天之前完成` → tomorrow
+  - `周五之前完成` → the nearest upcoming Friday, including today when today is Friday
+  - `下周五之前完成` → Friday of next week
+- Remove command phrases and deadline phrases from saved content, such as `记录一下`、`帮我记`、`今天完成`、`周五之前完成`.
+- When no deadline is stated, omit `due_date`; the server defaults it to today.
+
 ## Homework
 
 - List: `GET /api/homework`
@@ -101,6 +112,13 @@ Content-Type: application/json
 - Complete/uncomplete: `PUT /api/homework/{id}` with `{"done":true}` or `{"done":false}`
 - Delete: `DELETE /api/homework/{id}`
 - Keep homework content concise; put the subject only in `subject` and the deadline only in `due_date`.
+- Treat phrases containing a school subject plus `作业`、`家庭作业`、`练习` or an explicit request to record homework as homework, not a regular todo.
+- Extract the subject into `subject`. Remove the subject, `作业`, command wording, and deadline wording from `content`.
+- If nothing remains after extraction, use `做作业` as `content`.
+- Examples:
+  - `记录一下数学作业，今天完成` → `{"subject":"数学","content":"做作业","due_date":"<today>"}`
+  - `语文作业，周五之前完成：背诵古诗两首` → `{"subject":"语文","content":"背诵古诗两首","due_date":"<upcoming Friday>"}`
+  - `英语听读课文三遍，明天完成` → `{"subject":"英语","content":"听读课文三遍","due_date":"<tomorrow>"}`
 
 ## Daily Menu
 
@@ -108,4 +126,8 @@ Content-Type: application/json
 - Add: `POST /api/menu` with `{"meal":"晚餐","content":"番茄炒蛋","date":"2026-06-09"}`
 - Update: `PUT /api/menu/{id}` with any of `meal`, `content`, or `date`
 - Delete: `DELETE /api/menu/{id}`
-- Use `早餐`、`午餐`、`晚餐` or `加餐` for `meal`; omit `date` to default to today.
+- For `今天的菜单是 ...`, split multiple dishes by newlines, commas, `、`, or semicolons and create one menu item per dish.
+- Use an explicitly stated `早餐`、`午餐`、`晚餐` or `加餐` as `meal`. When no meal is stated, use `其他`.
+- Remove framing phrases such as `今天的菜单是`、`菜单有` before saving dish names.
+- Omit `date` for today's menu; the server defaults it to today.
+- Example: `今天的菜单是 番茄炒蛋、清炒时蔬，冬瓜排骨汤` → create three items with `meal:"其他"` and the three concise dish names.
