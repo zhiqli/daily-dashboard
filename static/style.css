@@ -56,51 +56,27 @@ body {
 }
 .pin-action {
   position: absolute;
-  top: 1px;
-  right: 0;
-  width: 27px;
-  height: 25px;
+  top: 0;
+  right: -2px;
+  display: grid;
+  width: 30px;
+  height: 28px;
+  place-items: center;
   border: 0;
   background: #ffffff;
 }
-.pin-action span,
-.pin-action span::before,
-.pin-action span::after {
-  position: absolute;
-  display: block;
-  content: "";
+.pin-action img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  filter: grayscale(1) contrast(1.8);
+  opacity: 0.68;
 }
-.pin-action span {
-  width: 14px;
-  height: 8px;
-  left: 7px;
-  top: 3px;
-  border: 2px solid #555555;
-  border-radius: 2px 2px 0 0;
-  background: #ffffff;
+.pin-action[aria-pressed="true"] {
+  background: #e2e2e2;
 }
-.pin-action span::before {
-  width: 18px;
-  height: 2px;
-  left: -4px;
-  top: 8px;
-  background: #555555;
-}
-.pin-action span::after {
-  width: 4px;
-  height: 12px;
-  left: 3px;
-  top: 10px;
-  background: #555555;
-  clip-path: polygon(25% 0, 75% 0, 50% 100%);
-}
-.pin-action[aria-pressed="true"] span {
-  background: #111111;
-  border-color: #111111;
-}
-.pin-action[aria-pressed="true"] span::before,
-.pin-action[aria-pressed="true"] span::after {
-  background: #111111;
+.pin-action[aria-pressed="true"] img {
+  opacity: 1;
 }
 
 .pages {
